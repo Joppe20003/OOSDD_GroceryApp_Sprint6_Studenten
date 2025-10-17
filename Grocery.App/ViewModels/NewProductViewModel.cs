@@ -35,47 +35,44 @@ namespace Grocery.App.ViewModels
         [RelayCommand]
         public async Task AddNewProduct()
         {
-            if (!string.IsNullOrEmpty(name) || !_productService.GetAll().Exists(i => i.Name == name))
+            if (string.IsNullOrEmpty(name) || _productService.GetAll().Exists(i => i.Name == name))
             {
-                errorMessage = "Naam bestaat al voor ander product of naam veld is nog leeg";
+                ErrorMessage = "Naam bestaat al voor ander product of naam veld is nog leeg";
             }
-
-            if (!Int32.TryParse(stock, out int stockValue))
+            else if (!Int32.TryParse(stock, out int stockValue))
             {
-                errorMessage = "Voorraad geen geldig format, verwacht format is een heel getal";
+                ErrorMessage = "Voorraad geen geldig format, verwacht format is een heel getal";
             }
-
-            if(Int32.Parse(stock) < 0)
+            else if (Int32.Parse(stock) < 0)
             {
-                errorMessage = "Voorraad mag geen negatief getal zijn";
+                ErrorMessage = "Voorraad mag geen negatief getal zijn";
             }
-
-            if(!DateOnly.TryParse(date, out DateOnly dateValue))
+            else if (!DateOnly.TryParse(date, out DateOnly dateValue))
             {
-                errorMessage = "THT Datum geen geldig format, verwacht format is YYYY-MM-DD";
+                ErrorMessage = "THT Datum geen geldig format, verwacht format is YYYY-MM-DD";
             }
-
-            if(DateOnly.Parse(date) < DateOnly.FromDateTime(DateTime.Now))
+            else if (DateOnly.Parse(date) < DateOnly.FromDateTime(DateTime.Now))
             {
-                errorMessage = "THT Datum kan niet in het verleden liggen";
+                ErrorMessage = "THT Datum kan niet in het verleden liggen";
             }
-
-            if (!Decimal.TryParse(price, out Decimal priceValue))
+            else if (!Decimal.TryParse(price, out Decimal priceValue))
             {
-                errorMessage = "Prijs geen geldig format, verwacht format is euro format";
+                ErrorMessage = "Prijs geen geldig format, verwacht format is euro format";
             }
-
-            try
+            else
             {
-                Product newProduct = new Product(_productService.GetAll().Count + 1, name, stockValue, dateValue, priceValue);
+                try
+                {
+                    Product newProduct = new Product(_productService.GetAll().Count + 1, name, stockValue, dateValue, priceValue);
 
-                _productService.Add(newProduct);
+                    _productService.Add(newProduct);
 
-                await Shell.Current.GoToAsync(nameof(ProductView));
-            } 
-            catch(Exception ex)
-            {
-                errorMessage = $"Toevoegen mislukt: {ex.Message}";
+                    await Shell.Current.GoToAsync(nameof(ProductView));
+                }
+                catch (Exception ex)
+                {
+                    ErrorMessage = $"Toevoegen mislukt: {ex.Message}";
+                }
             }
         }
     }
